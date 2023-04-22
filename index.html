@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible"
+          content="IE=edge">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <title>Unbeatable AI</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Lato&family=Nanum+Gothic&family=Oswald&family=Poppins&family=Raleway&display=swap');
+    </style>
+    <link rel="stylesheet"
+          href="styles/style.css">
+    <link rel="reset"
+          href="styles/reset.css">
+    <script src="script.js"
+            defer></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="top">
+            <h1>Tic Tac Toe</h1>
+        </div>
+        <div class="bottom">
+            <div class="start-options">
+                <input type="text"
+                       class="player-inputs"
+                       placeholder="Enter Player Name">
+                <div class="symbol-div">
+                    <button class="player-symbol chosen"
+                            id="X">X</button>
+                    <button class="player-symbol"
+                            id="O">O</button>
+                </div>
+                <select name="Difficulty"
+                        id="difficulty"
+                        class="player-inputs">
+                    <option value="1">Easy</option>
+                    <option value="2">Medium</option>
+                    <option value="3">Hard</option>
+                    <option value="4">Impossible</option>
+                </select>
+                <button class="start-button">Start Game</button>
+            </div>
+            <div class="score-card player hidden">
+                <div></div>
+                <div class="score"
+                     id="player">0</div>
+            </div>
+            <div class="game-board hidden">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+            <div class="score-card computer hidden">
+                <div>Computer</div>
+                <div class="score"
+                     id="computer">0</div>
+            </div>
+        </div>
+</body>
+
+</html>
