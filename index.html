@@ -22,13 +22,20 @@
 <body>
     <div class="container">
         <div class="top">
-            <h1>Tic Tac Toe</h1>
+            <div class="top-button">
+                <button class="reset">Reset</button>
+            </div>
+            <div class="headers">
+                <h1>Tic Tac Toe</h1>
+                <h3 class="winner-msg"></h3>
+            </div>
         </div>
         <div class="bottom">
             <div class="start-options">
                 <input type="text"
                        class="player-inputs"
-                       placeholder="Enter Player Name">
+                       placeholder="Enter Player Name"
+                       id="player-name-input">
                 <div class="symbol-div">
                     <button class="player-symbol chosen"
                             id="X">X</button>
@@ -45,26 +52,29 @@
                 </select>
                 <button class="start-button">Start Game</button>
             </div>
-            <div class="score-card player hidden">
-                <div></div>
-                <div class="score"
-                     id="player">0</div>
-            </div>
-            <div class="game-board hidden">
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-            </div>
-            <div class="score-card computer hidden">
-                <div>Computer</div>
-                <div class="score"
-                     id="computer">0</div>
+
+            <div class="game-start-board bottom hidden">
+                <div class="score-card player">
+                    <div id="player-name-1"></div>
+                    <div class="score"
+                         id="player"></div>
+                </div>
+                <div class="game-board">
+                    <div class="cell"></div>
+                    <div class="cell"></div>
+                    <div class="cell"></div>
+                    <div class="cell"></div>
+                    <div class="cell"></div>
+                    <div class="cell"></div>
+                    <div class="cell"></div>
+                    <div class="cell"></div>
+                    <div class="cell"></div>
+                </div>
+                <div class="score-card computer">
+                    <div id="player-name-2"></div>
+                    <div class="score"
+                         id="computer"></div>
+                </div>
             </div>
         </div>
 </body>
