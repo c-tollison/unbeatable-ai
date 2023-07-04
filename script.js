@@ -12,14 +12,7 @@ const GameBoard = (() => {
         return false;
     };
 
-    const boardFull = () => {
-        if (!board.includes("")) {
-            return true;
-        }
-        return false;
-    };
-
-    const checkWinner = () => {
+    const checkWinner = (newBoard, symbol) => {
         const winningCombinations = [
             [0, 1, 2],
             [3, 4, 5],
@@ -34,9 +27,9 @@ const GameBoard = (() => {
         for (const combination of winningCombinations) {
             const [a, b, c] = combination;
             if (
-                board[a] !== "" &&
-                board[a] === board[b] &&
-                board[a] === board[c]
+                newBoard[a] === symbol &&
+                newBoard[a] === newBoard[b] &&
+                newBoard[a] === newBoard[c]
             ) {
                 return true;
             }
@@ -45,10 +38,32 @@ const GameBoard = (() => {
     };
 
     const resetBoard = () => {
-        board = board.map(() => "");
+        board = Array(9).fill("");
     };
 
-    return { getBoard, updateBoard, boardFull, checkWinner, resetBoard };
+    const getEmptyIndex = (newBoard) => {
+        let emptyIndex = [];
+        for (let i = 0; i < 9; i++) {
+            if (newBoard[i] === "") {
+                emptyIndex.push(i);
+            }
+        }
+        return emptyIndex;
+    };
+
+    const createNewBoard = (index, symbol) => {
+        let newBoard = [...board];
+        newBoard[index] = symbol;
+        return newBoard;
+    };
+    return {
+        getBoard,
+        updateBoard,
+        checkWinner,
+        resetBoard,
+        getEmptyIndex,
+        createNewBoard,
+    };
 })();
 
 const Game = (() => {
@@ -56,6 +71,7 @@ const Game = (() => {
     let player2;
     let currentPlayer;
     let gameover = false;
+    let easy;
 
     const startGame = () => {
         let playerName = Display.getInput("#player-name-input");
@@ -77,12 +93,16 @@ const Game = (() => {
                 Display.renderBoard();
                 _switchPlayer();
 
-                if (GameBoard.checkWinner()) {
+                if (
+                    GameBoard.checkWinner(GameBoard.getBoard(), player1.symbol)
+                ) {
                     Display.winnerMessage(player1.name + " wins!");
                     player1.score++;
                     Display.updateScore(true, player1.score.toString());
                     gameover = true;
-                } else if (GameBoard.boardFull()) {
+                } else if (
+                    GameBoard.getEmptyIndex(GameBoard.getBoard()).length === 0
+                ) {
                     Display.winnerMessage("Tie");
                     gameover = true;
                 } else {
@@ -101,19 +121,30 @@ const Game = (() => {
         currentPlayer = player1;
     };
 
-    const _computerPlayRound = () => {
-        let cellIndex;
-        do {
-            cellIndex = Math.floor(Math.random() * 9);
-        } while (!GameBoard.updateBoard(player2.symbol, cellIndex));
-        Display.renderBoard();
+    const setDifficulty = (difficulty) => {
+        if (difficulty == 1) {
+            easy = true;
+        } else {
+            easy = false;
+        }
+    };
 
-        if (GameBoard.checkWinner()) {
+    const _computerPlayRound = () => {
+        if (easy) {
+            do {
+                cellIndex = Math.floor(Math.random() * 9);
+            } while (!GameBoard.updateBoard(player2.symbol, cellIndex));
+        } else {
+            let bestMove = _minimax(GameBoard.getBoard(), player2, false);
+            GameBoard.updateBoard(player2.symbol, bestMove.index);
+        }
+        Display.renderBoard();
+        if (GameBoard.checkWinner(GameBoard.getBoard(), player2.symbol)) {
             Display.winnerMessage(player2.name + " wins");
             player2.score++;
             Display.updateScore(false, player2.score.toString());
             gameover = true;
-        } else if (GameBoard.boardFull()) {
+        } else if (GameBoard.getEmptyIndex(GameBoard.getBoard()).length === 0) {
             Display.winnerMessage("Tie");
             gameover = true;
         } else {
@@ -129,7 +160,56 @@ const Game = (() => {
         }
     };
 
-    return { startGame, playRound, resetGame };
+    const _minimax = (board, player, maximizingPlayer) => {
+        let moves = [];
+        let emptyIndices = GameBoard.getEmptyIndex(board);
+
+        // Check if the game is at a terminal state
+        if (GameBoard.checkWinner(board, player1.symbol)) {
+            return { score: 10 };
+        } else if (GameBoard.checkWinner(board, player2.symbol)) {
+            return { score: -10 };
+        } else if (emptyIndices.length === 0) {
+            return { score: 0 };
+        }
+
+        emptyIndices.forEach((index) => {
+            let move = {
+                index: index,
+                score: 0,
+            };
+
+            board[index] = player.symbol;
+            let nextPlayer = maximizingPlayer ? player2 : player1;
+            let result = _minimax(board, nextPlayer, !maximizingPlayer);
+            move.score = result.score;
+            board[index] = "";
+            moves.push(move);
+        });
+
+        let bestMove;
+        if (maximizingPlayer) {
+            let bestScore = -Infinity;
+            for (let i = 0; i < moves.length; i++) {
+                if (moves[i].score > bestScore) {
+                    bestScore = moves[i].score;
+                    bestMove = moves[i];
+                }
+            }
+        } else {
+            let bestScore = Infinity;
+            for (let i = 0; i < moves.length; i++) {
+                if (moves[i].score < bestScore) {
+                    bestScore = moves[i].score;
+                    bestMove = moves[i];
+                }
+            }
+        }
+
+        return bestMove;
+    };
+
+    return { startGame, playRound, resetGame, setDifficulty };
 })();
 
 const Player = (name, symbol, score) => {
@@ -193,9 +273,14 @@ const Display = (() => {
         }
     };
 
+    const _getDifficulty = () => {
+        Game.setDifficulty(document.querySelector("#difficulty").value);
+    };
+
     xChoice.addEventListener("click", _changeSign.bind(this, "X"));
     oChoice.addEventListener("click", _changeSign.bind(this, "O"));
     startButton.addEventListener("click", _switchScreen);
+    startButton.addEventListener("click", _getDifficulty);
     startButton.addEventListener("click", Game.startGame);
     resetButton.addEventListener("click", Game.resetGame);
     cells.forEach((cell, index) => {
