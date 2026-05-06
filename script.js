@@ -31,10 +31,10 @@ const GameBoard = (() => {
                 newBoard[a] === newBoard[b] &&
                 newBoard[a] === newBoard[c]
             ) {
-                return true;
+                return combination;
             }
         }
-        return false;
+        return null;
     };
 
     const resetBoard = () => {
@@ -92,9 +92,14 @@ const Game = (() => {
         }
         Display.renderBoard();
 
-        if (GameBoard.checkWinner(GameBoard.getBoard(), player1.symbol)) {
+        const winCombo = GameBoard.checkWinner(
+            GameBoard.getBoard(),
+            player1.symbol
+        );
+        if (winCombo) {
             Display.winnerMessage(player1.name + " wins!");
             Display.turnMessage("");
+            Display.showWinLine(winCombo);
             player1.score++;
             Display.updateScore(true, player1.score.toString());
             gameover = true;
@@ -115,6 +120,7 @@ const Game = (() => {
     const resetGame = () => {
         GameBoard.resetBoard();
         Display.renderBoard();
+        Display.hideWinLine();
         gameover = false;
         computerThinking = false;
         Display.winnerMessage("");
@@ -148,9 +154,14 @@ const Game = (() => {
             Display.renderBoard();
             computerThinking = false;
 
-            if (GameBoard.checkWinner(GameBoard.getBoard(), player2.symbol)) {
+            const winCombo = GameBoard.checkWinner(
+                GameBoard.getBoard(),
+                player2.symbol
+            );
+            if (winCombo) {
                 Display.winnerMessage(player2.name + " wins");
                 Display.turnMessage("");
+                Display.showWinLine(winCombo);
                 player2.score++;
                 Display.updateScore(false, player2.score.toString());
                 gameover = true;
@@ -273,17 +284,66 @@ const Display = (() => {
         return "O";
     };
 
+    let prevBoard = ["", "", "", "", "", "", "", "", ""];
+
     const renderBoard = () => {
         const board = GameBoard.getBoard();
         cells.forEach((element, index) => {
-            element.textContent = board[index];
             const filled = board[index] !== "";
+            const changed = board[index] !== prevBoard[index];
+
+            if (changed) {
+                element.innerHTML = "";
+                if (filled) {
+                    const span = document.createElement("span");
+                    span.className = "mark just-placed";
+                    span.textContent = board[index];
+                    element.appendChild(span);
+                }
+            }
+
             element.disabled = filled;
             const label = filled
                 ? `Cell ${index + 1}, ${board[index]}`
                 : `Cell ${index + 1}, empty`;
             element.setAttribute("aria-label", label);
         });
+        prevBoard = [...board];
+    };
+
+    const showWinLine = (combo) => {
+        const boardEl = document.querySelector(".game-board");
+        let svg = boardEl.querySelector(".win-line");
+        if (!svg) {
+            svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svg.setAttribute("class", "win-line");
+            svg.setAttribute("viewBox", "0 0 310 310");
+            svg.setAttribute("preserveAspectRatio", "none");
+            boardEl.appendChild(svg);
+        }
+        // Replace line each time so the draw-in animation restarts.
+        svg.innerHTML = "";
+        const line = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "line"
+        );
+        const center = (n) => 50 + 105 * n;
+        const start = combo[0];
+        const end = combo[2];
+        line.setAttribute("x1", center(start % 3));
+        line.setAttribute("y1", center(Math.floor(start / 3)));
+        line.setAttribute("x2", center(end % 3));
+        line.setAttribute("y2", center(Math.floor(end / 3)));
+        svg.appendChild(line);
+        svg.classList.remove("hidden");
+    };
+
+    const hideWinLine = () => {
+        const svg = document.querySelector(".game-board .win-line");
+        if (svg) {
+            svg.classList.add("hidden");
+            svg.innerHTML = "";
+        }
     };
 
     const addPlayerNames = (playerName1, playerName2) => {
@@ -338,5 +398,7 @@ const Display = (() => {
         turnMessage,
         updateScore,
         showStartScreen,
+        showWinLine,
+        hideWinLine,
     };
 })();
