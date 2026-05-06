@@ -1,0 +1,16 @@
+{
+    "name": "unbeatable-ai",
+    "version": "1.0.0",
+    "private": true,
+    "description": "Unbeatable Tic Tac Toe AI built with vanilla JavaScript.",
+    "scripts": {
+        "lint": "eslint .",
+        "format": "prettier --write ."
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.0.0",
+        "eslint": "^9.0.0",
+        "globals": "^15.0.0",
+        "prettier": "^3.0.0"
+    }
+}
